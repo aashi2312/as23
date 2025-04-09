@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="LunchCheck">
+<head>
+  <meta charset="UTF-8">
+  <title>Lunch Checker</title>
+  <style>
+    .message {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    .green {
+      color: green;
+      border: 2px solid green;
+    }
+    .red {
+      color: red;
+      border: 2px solid red;
+    }
+  </style>
+</head>
+<body ng-controller="LunchCheckController">
+
+  <h1>Lunch Checker</h1>
+  <input type="text"
+         ng-model="lunchItems"
+         placeholder="Enter comma-separated lunch items"
+         ng-class="borderClass">
+  <button ng-click="checkLunch()">Check If Too Much</button>
+
+  <div class="message" ng-class="messageClass">{{ message }}</div>
+
+  <p><em>Note:</em> Empty items (like ", ,") are NOT counted.</p>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
