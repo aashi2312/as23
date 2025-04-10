@@ -1,53 +1,64 @@
 (function () {
     'use strict';
   
-    angular.module('ShoppingListCheckOff', [])
-    .controller('ToBuyController', ToBuyController)
-    .controller('AlreadyBoughtController', AlreadyBoughtController)
-    .service('ShoppingListCheckOffService', ShoppingListCheckOffService);
+    angular.module('NarrowItDownApp', [])
+    .controller('NarrowItDownController', NarrowItDownController)
+    .service('MenuSearchService', MenuSearchService)
+    .directive('foundItems', FoundItemsDirective);
   
-    ToBuyController.$inject = ['ShoppingListCheckOffService'];
-    function ToBuyController(ShoppingListCheckOffService) {
-      var buy = this;
-  
-      buy.items = ShoppingListCheckOffService.getToBuyItems();
-  
-      buy.buyItem = function (itemIndex) {
-        ShoppingListCheckOffService.buyItem(itemIndex);
+    function FoundItemsDirective() {
+      return {
+        restrict: 'E',
+        templateUrl: 'foundItems.html',
+        scope: {
+          items: '<',
+          onRemove: '&'
+        }
       };
     }
   
-    AlreadyBoughtController.$inject = ['ShoppingListCheckOffService'];
-    function AlreadyBoughtController(ShoppingListCheckOffService) {
-      var bought = this;
+    NarrowItDownController.$inject = ['MenuSearchService'];
+    function NarrowItDownController(MenuSearchService) {
+      var narrow = this;
   
-      bought.items = ShoppingListCheckOffService.getBoughtItems();
+      narrow.narrowItDown = function () {
+        if (!narrow.searchTerm) {
+          narrow.found = [];
+          narrow.nothingFound = true;
+          return;
+        }
+  
+        MenuSearchService.getMatchedMenuItems(narrow.searchTerm).then(function (foundItems) {
+          narrow.found = foundItems;
+          narrow.nothingFound = foundItems.length === 0;
+        });
+      };
+  
+      narrow.removeItem = function (index) {
+        narrow.found.splice(index, 1);
+      };
     }
   
-    function ShoppingListCheckOffService() {
+    MenuSearchService.$inject = ['$http'];
+    function MenuSearchService($http) {
       var service = this;
   
-      var toBuyItems = [
-        { name: "Apples", quantity: 5 },
-        { name: "Bananas", quantity: 6 },
-        { name: "Cookies", quantity: 10 },
-        { name: "Chips", quantity: 3 },
-        { name: "Milk", quantity: 2 }
-      ];
+      service.getMatchedMenuItems = function (searchTerm) {
+        return $http({
+          method: 'GET',
+          url: 'https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json'
+        }).then(function (response) {
+          var foundItems = [];
+          var items = response.data.menu_items;
   
-      var boughtItems = [];
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+              foundItems.push(items[i]);
+            }
+          }
   
-      service.buyItem = function (itemIndex) {
-        var item = toBuyItems.splice(itemIndex, 1)[0];
-        boughtItems.push(item);
-      };
-  
-      service.getToBuyItems = function () {
-        return toBuyItems;
-      };
-  
-      service.getBoughtItems = function () {
-        return boughtItems;
+          return foundItems;
+        });
       };
     }
   

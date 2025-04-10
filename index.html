@@ -1,35 +1,24 @@
-<!doctype html>
-<html lang="en" ng-app="ShoppingListCheckOff">
+<!DOCTYPE html>
+<html lang="en" ng-app="NarrowItDownApp">
 <head>
   <meta charset="UTF-8">
-  <title>Shopping List Check Off</title>
+  <title>Menu Search</title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <script src="app.js"></script>
 </head>
-<body>
+<body ng-controller="NarrowItDownController as narrow">
 
-  <h1>Shopping List Check Off</h1>
+  <h1>Narrow Down Your Menu Choice</h1>
 
-  <div ng-controller="ToBuyController as buy">
-    <h2>To Buy:</h2>
-    <p ng-if="buy.items.length === 0">Everything is bought!</p>
-    <ul>
-      <li ng-repeat="item in buy.items">
-        Buy {{ item.quantity }} {{ item.name }}
-        <button ng-click="buy.buyItem($index)">Bought</button>
-      </li>
-    </ul>
-  </div>
+  <input type="text" ng-model="narrow.searchTerm">
+  <button ng-click="narrow.narrowItDown()">Narrow It Down For Me!</button>
 
-  <div ng-controller="AlreadyBoughtController as bought">
-    <h2>Already Bought:</h2>
-    <p ng-if="bought.items.length === 0">Nothing bought yet.</p>
-    <ul>
-      <li ng-repeat="item in bought.items">
-        Bought {{ item.quantity }} {{ item.name }}
-      </li>
-    </ul>
-  </div>
+  <found-items 
+    items="narrow.found"
+    on-remove="narrow.removeItem(index)">
+  </found-items>
+
+  <p ng-if="narrow.nothingFound">Nothing found</p>
 
 </body>
 </html>
