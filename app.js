@@ -1,42 +1,55 @@
 (function () {
     'use strict';
   
-    angular.module('LunchCheck', [])
-      .controller('LunchCheckController', LunchCheckController);
+    angular.module('ShoppingListCheckOff', [])
+    .controller('ToBuyController', ToBuyController)
+    .controller('AlreadyBoughtController', AlreadyBoughtController)
+    .service('ShoppingListCheckOffService', ShoppingListCheckOffService);
   
-    LunchCheckController.$inject = ['$scope'];
-    function LunchCheckController($scope) {
-      $scope.lunchItems = "";
-      $scope.message = "";
-      $scope.messageClass = "";
-      $scope.borderClass = "";
+    ToBuyController.$inject = ['ShoppingListCheckOffService'];
+    function ToBuyController(ShoppingListCheckOffService) {
+      var buy = this;
   
-      $scope.checkLunch = function () {
-        if (!$scope.lunchItems || $scope.lunchItems.trim() === "") {
-          $scope.message = "Please enter data first";
-          $scope.messageClass = "red";
-          $scope.borderClass = "red";
-          return;
-        }
+      buy.items = ShoppingListCheckOffService.getToBuyItems();
   
-        var items = $scope.lunchItems.split(',')
-          .map(item => item.trim())
-          .filter(item => item !== ""); // removes empty items
-  
-        if (items.length === 0) {
-          $scope.message = "Please enter data first";
-          $scope.messageClass = "red";
-          $scope.borderClass = "red";
-        } else if (items.length <= 3) {
-          $scope.message = "Enjoy!";
-          $scope.messageClass = "green";
-          $scope.borderClass = "green";
-        } else {
-          $scope.message = "Too much!";
-          $scope.messageClass = "green";
-          $scope.borderClass = "green";
-        }
+      buy.buyItem = function (itemIndex) {
+        ShoppingListCheckOffService.buyItem(itemIndex);
       };
     }
+  
+    AlreadyBoughtController.$inject = ['ShoppingListCheckOffService'];
+    function AlreadyBoughtController(ShoppingListCheckOffService) {
+      var bought = this;
+  
+      bought.items = ShoppingListCheckOffService.getBoughtItems();
+    }
+  
+    function ShoppingListCheckOffService() {
+      var service = this;
+  
+      var toBuyItems = [
+        { name: "Apples", quantity: 5 },
+        { name: "Bananas", quantity: 6 },
+        { name: "Cookies", quantity: 10 },
+        { name: "Chips", quantity: 3 },
+        { name: "Milk", quantity: 2 }
+      ];
+  
+      var boughtItems = [];
+  
+      service.buyItem = function (itemIndex) {
+        var item = toBuyItems.splice(itemIndex, 1)[0];
+        boughtItems.push(item);
+      };
+  
+      service.getToBuyItems = function () {
+        return toBuyItems;
+      };
+  
+      service.getBoughtItems = function () {
+        return boughtItems;
+      };
+    }
+  
   })();
   
